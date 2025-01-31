@@ -30,8 +30,15 @@ fi
 echo -e "${YELLOW}Testing URLs from ${RESULTS_FILE}...${RESET}"
 
 while IFS= read -r URL; do
-    # Create a new URL with 'trabbit' as a parameter value
-    NEW_URL="${URL}?param=trabbit"
+    # Extract all parameter names
+    PARAMS=$(echo "$URL" | grep -oP '[^?&=]+(?==)')
+
+    # Create a new URL with all parameter values replaced by 'trabbit'
+    NEW_URL="$URL"
+    for PARAM in $PARAMS; do
+        NEW_URL=$(echo "$NEW_URL" | sed "s/${PARAM}=[^&]*/${PARAM}=trabbit/")
+    done
+
     echo -e "${BLUE}Testing URL: $NEW_URL${RESET}"
 
     # Fetch the page content
@@ -41,9 +48,12 @@ while IFS= read -r URL; do
     if echo "$PAGE_CONTENT" | grep -q "<title>.*trabbit.*</title>"; then
         echo -e "${GREEN}Found 'trabbit' in title for URL: $NEW_URL${RESET}"
 
-        # Replace 'trabbit' in the title with H1 tag
-        MODIFIED_URL="${URL}?param=</title><h1>trabbit</h1>"
-
+        # Create modified URL with H1 tag
+        MODIFIED_URL="$URL"
+        for PARAM in $PARAMS; do
+            MODIFIED_URL=$(echo "$MODIFIED_URL" | sed "s/${PARAM}=[^&]*/${PARAM}=</title><h1>trabbit</h1>/")
+        done
+        
         # Fetch the modified page content
         MODIFIED_CONTENT=$(curl -s "$MODIFIED_URL")
 
