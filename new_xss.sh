@@ -48,12 +48,9 @@ while IFS= read -r URL; do
     if echo "$PAGE_CONTENT" | grep -q "<title>.*trabbit.*</title>"; then
         echo -e "${GREEN}Found 'trabbit' in title for URL: $NEW_URL${RESET}"
 
-        # Create modified URL with H1 tag
-        MODIFIED_URL="$URL"
-        for PARAM in $PARAMS; do
-            MODIFIED_URL=$(echo "$MODIFIED_URL" | sed "s/${PARAM}=[^&]*/${PARAM}=</title><h1>trabbit</h1>/")
-        done
-        
+        # Modify the URL to replace 'trabbit' in the title with H1 tag
+        MODIFIED_URL="${NEW_URL}</title><h1>trabbit</h1>"
+
         # Fetch the modified page content
         MODIFIED_CONTENT=$(curl -s "$MODIFIED_URL")
 
